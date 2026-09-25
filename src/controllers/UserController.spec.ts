@@ -37,6 +37,19 @@ describe('UserController', () => {
         expect(mockResponse.state.json).toMatchObject({ message: 'Bad request! Name obrigatório' })
     })
 
+    // TDD: este teste é escrito antes da implementação e deve falhar até a validação de email existir
+    it('Deve retornar erro ao criar um usuário sem o campo email', () => {
+        const mockRequest = {
+            body: {
+                name: 'Nath'
+            }
+        } as Request
+        const mockResponse = makeMockResponse()
+        userController.createUser(mockRequest, mockResponse)
+        expect(mockResponse.state.status).toBe(400)
+        expect(mockResponse.state.json).toMatchObject({ message: 'Bad request! Email obrigatório' })
+    })
+
     // Testa se getAllUsers chama o service correto e responde com status 200
     it('Deve retornar todos os usuários com status 200', () => {
         const mockRequest = {} as Request
