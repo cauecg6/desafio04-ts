@@ -32,5 +32,17 @@ export class UserService {
     getAllUsers = () => {
         return this.db
     }
+
+    // Usa o email como identificador, pois o name pode se repetir entre usuários
+    deleteUser = (email: string) => {
+        const userIndex = this.db.findIndex(user => user.email === email)
+
+        if(userIndex === -1){
+            return false
+        }
+
+        this.db.splice(userIndex, 1)
+        return true
+    }
 }
 

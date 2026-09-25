@@ -6,7 +6,8 @@ import { makeMockResponse } from "../__mocks__/mockResponse.mock";
 describe('UserController', () => {
     const mockUserService: Partial<UserService> = {
         createUser: jest.fn(),
-        getAllUsers: jest.fn()
+        getAllUsers: jest.fn(),
+        deleteUser: jest.fn()
     }
 
     const userController = new UserController(mockUserService as UserService);
@@ -57,5 +58,38 @@ describe('UserController', () => {
         userController.getAllUsers(mockRequest, mockResponse)
         expect(mockUserService.getAllUsers).toHaveBeenCalled()
         expect(mockResponse.state.status).toBe(200)
+    })
+
+    it('Deve deletar um usuário com sucesso', () => {
+        (mockUserService.deleteUser as jest.Mock).mockReturnValue(true)
+        const mockRequest = {
+            body: { email: 'nath@test.com' }
+        } as Request
+        const mockResponse = makeMockResponse()
+        userController.deleteUser(mockRequest, mockResponse)
+        expect(mockUserService.deleteUser).toHaveBeenCalledWith('nath@test.com')
+        expect(mockResponse.state.status).toBe(200)
+        expect(mockResponse.state.json).toMatchObject({ message: 'Usuário deletado' })
+    })
+
+    it('Deve retornar erro ao deletar sem informar o email', () => {
+        const mockRequest = {
+            body: {}
+        } as Request
+        const mockResponse = makeMockResponse()
+        userController.deleteUser(mockRequest, mockResponse)
+        expect(mockResponse.state.status).toBe(400)
+        expect(mockResponse.state.json).toMatchObject({ message: 'Bad request! Email obrigatório' })
+    })
+
+    it('Deve retornar erro 404 ao tentar deletar um usuário inexistente', () => {
+        (mockUserService.deleteUser as jest.Mock).mockReturnValue(false)
+        const mockRequest = {
+            body: { email: 'naoexiste@test.com' }
+        } as Request
+        const mockResponse = makeMockResponse()
+        userController.deleteUser(mockRequest, mockResponse)
+        expect(mockResponse.state.status).toBe(404)
+        expect(mockResponse.state.json).toMatchObject({ message: 'Usuário não encontrado' })
     })
 })
